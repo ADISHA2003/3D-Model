@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doraemon - 3D Model of Doraemon Following Cursor</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+  <!-- Include Three.js library from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <script>
+    // 1) SETUP THE SCENE
+    const scene = new THREE.Scene();
+
+    // 2) CREATE A CAMERA
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    // 3) CREATE A RENDERER
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // 4) CREATE A FACE
+    const faceGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const faceMaterial = new THREE.MeshPhongMaterial({ color: 0x007afff });
+    const face = new THREE.Mesh(faceGeometry, faceMaterial);
+    scene.add(face);
+
+    // 5) CREATE EYES
+    const eyeGeometry = new THREE.SphereGeometry(0.15, 32, 32);
+    const leftEyeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    const rightEyeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    const leftEye = new THREE.Mesh(eyeGeometry, leftEyeMaterial);
+    const rightEye = new THREE.Mesh(eyeGeometry, rightEyeMaterial);
+    leftEye.position.set(-0.25, 0.3, 0.9);
+    rightEye.position.set(0.25, 0.3, 0.9);
+    face.add(leftEye);
+    face.add(rightEye);
+
+    // 6) CREATE PUPILS
+    const pupilGeometry = new THREE.SphereGeometry(0.05, 32, 32);
+    const pupilMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+    const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    leftPupil.position.set(-0.25, 0.3, 1.1);
+    rightPupil.position.set(0.25, 0.3, 1.1);
+    face.add(leftPupil);
+    face.add(rightPupil);
+
+    // 7) CREATE NOSE
+    const noseGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+    const noseMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    const nose = new THREE.Mesh(noseGeometry, noseMaterial);
+    nose.position.set(0, 0.1, 1);
+    face.add(nose);
+
+    // 8) CREATE MOUTH
+    const mouthGeometry = new THREE.Shape();
+    mouthGeometry.moveTo(-0.3, -0.3);
+    mouthGeometry.quadraticCurveTo(0, -0.65, 0.3, -0.3);
+    const mouthMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const mouth = new THREE.Mesh(new THREE.ShapeGeometry(mouthGeometry), mouthMaterial);
+    mouth.position.set(0, -0.05, 0.95);
+    face.add(mouth);
+
+    // 9) ADD LIGHTING FOR 3D EFFECTS
+    const pointLight = new THREE.PointLight(0xffffff, 1);
+    pointLight.position.set(5, 5, 5);
+    scene.add(pointLight);
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+
+    // 10) MOVE FACE TO FOLLOW CURSOR
+    document.addEventListener('mousemove', (event) => {
+      const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+      const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      // Calculate the target position for the face
+      const targetRotationY = mouseX * Math.PI / 6; // Adjust for how far to turn
+      const targetRotationX = -mouseY * Math.PI / 6; // Adjust for how far to tilt
+
+      // Smoothly move the face towards the target rotation
+      face.rotation.y += (targetRotationY - face.rotation.y) * 0.1; // Smooth movement for Y rotation
+      face.rotation.x += (targetRotationX - face.rotation.x) * 0.1; // Smooth movement for X rotation
+    });
+
+    // 11) ANIMATION LOOP
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+    // 12) RESIZE HANDLING
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Start the animation
+    animate();
+  </script>
+</body>
+</html>
